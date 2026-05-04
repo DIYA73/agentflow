@@ -13,3 +13,8 @@ coverage/
 Thumbs.db
 .vscode/
 .idea/
+agentflow-auth/
+agentflow-phase2/
+agentflow-phase3/
+agentflow-phase4/
+*.zip
