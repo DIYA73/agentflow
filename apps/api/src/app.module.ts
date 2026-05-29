@@ -10,6 +10,8 @@ import { AuthModule } from './auth/auth.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
 import { FlowsModule } from './flows/flows.module';
 import { TriggersModule } from './triggers/triggers.module';
+import { ExecutionsModule } from './executions/executions.module';
+import { GatewayModule } from './gateway/gateway.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { TriggersModule } from './triggers/triggers.module';
     WorkspacesModule,
     FlowsModule,
     TriggersModule,
+    ExecutionsModule,
+    GatewayModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
