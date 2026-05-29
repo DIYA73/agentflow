@@ -57,4 +57,15 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   broadcastStatus(payload: { executionId: string; status: string }): void {
     this.server.to(`execution:${payload.executionId}`).emit('execution:status', payload);
   }
+
+  @OnEvent('execution.node.status')
+  broadcastNodeStatus(payload: {
+    executionId: string;
+    nodeId: string;
+    status: 'running' | 'success' | 'error';
+  }): void {
+    this.server
+      .to(`execution:${payload.executionId}`)
+      .emit('execution:node:status', payload);
+  }
 }

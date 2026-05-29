@@ -1,6 +1,7 @@
 import { Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EXECUTION_QUEUE, ExecutionsService } from './executions.service';
 import { ExecutionStatus } from './entities/execution.entity';
 import { NodesService } from '../nodes/nodes.service';
@@ -19,6 +20,7 @@ export class ExecutionProcessor {
   constructor(
     private readonly executionsService: ExecutionsService,
     private readonly nodesService: NodesService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   @Process('run-flow')
@@ -27,21 +29,21 @@ export class ExecutionProcessor {
     const { nodes, edges } = flow.graph;
 
     await this.executionsService.setStatus(executionId, ExecutionStatus.RUNNING);
-    await this.executionsService.appendLog(executionId, 'system', `▶ Starting flow execution`);
+    await this.executionsService.appendLog(executionId, 'system', '▶ Starting flow execution');
 
     try {
-      // Topologically sort nodes to determine execution order
       const sorted = this.topologicalSort(nodes, edges);
-
-      // Context map: nodeId -> output data
       const context: Record<string, unknown> = { input: input || {} };
 
       for (const node of sorted) {
         await this.executionsService.appendLog(
-          executionId,
-          node.id,
+          executionId, node.id,
           `🔄 Running node: ${node.data.label} (${node.type})`,
         );
+
+        this.eventEmitter.emit('execution.node.status', {
+          executionId, nodeId: node.id, status: 'running',
+        });
 
         try {
           const nodeInput = this.resolveNodeInput(node, edges, context);
@@ -49,23 +51,26 @@ export class ExecutionProcessor {
           context[node.id] = output;
 
           await this.executionsService.appendLog(
-            executionId,
-            node.id,
-            `✅ Node complete: ${node.data.label}`,
+            executionId, node.id, `✅ Node complete: ${node.data.label}`,
           );
+
+          this.eventEmitter.emit('execution.node.status', {
+            executionId, nodeId: node.id, status: 'success',
+          });
         } catch (err: unknown) {
           const msg = err instanceof Error ? err.message : 'Unknown error';
           await this.executionsService.appendLog(
-            executionId,
-            node.id,
-            `❌ Node failed: ${msg}`,
-            'error',
+            executionId, node.id, `❌ Node failed: ${msg}`, 'error',
           );
+
+          this.eventEmitter.emit('execution.node.status', {
+            executionId, nodeId: node.id, status: 'error',
+          });
           throw err;
         }
       }
 
-      await this.executionsService.appendLog(executionId, 'system', `🎉 Flow completed successfully`);
+      await this.executionsService.appendLog(executionId, 'system', '🎉 Flow completed successfully');
       await this.executionsService.setStatus(executionId, ExecutionStatus.SUCCESS, context);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -74,9 +79,6 @@ export class ExecutionProcessor {
     }
   }
 
-  /**
-   * Kahn's algorithm for topological sort of the flow DAG
-   */
   private topologicalSort(nodes: FlowNode[], edges: FlowEdge[]): FlowNode[] {
     const inDegree = new Map<string, number>();
     const adjList = new Map<string, string[]>();
@@ -93,7 +95,6 @@ export class ExecutionProcessor {
     while (queue.length > 0) {
       const node = queue.shift()!;
       sorted.push(node);
-
       for (const neighborId of adjList.get(node.id) || []) {
         const deg = (inDegree.get(neighborId) || 0) - 1;
         inDegree.set(neighborId, deg);
@@ -114,11 +115,9 @@ export class ExecutionProcessor {
   ): Record<string, unknown> {
     const incomingEdges = edges.filter((e) => e.target === node.id);
     const resolved: Record<string, unknown> = {};
-
     incomingEdges.forEach((edge) => {
       resolved[edge.sourceHandle || edge.source] = context[edge.source];
     });
-
     return resolved;
   }
 }

@@ -16,6 +16,7 @@ import { CanvasToolbar } from '@/components/canvas/CanvasToolbar';
 import { ExecutionLogsPanel } from '@/components/canvas/ExecutionLogsPanel';
 import { TriggerPanel } from '@/components/triggers/TriggerPanel';
 import { NODE_REGISTRY } from '@/lib/node-registry';
+import { useExecutionSocket } from '@/lib/hooks/useExecutionSocket';
 
 const nodeTypes = { agentNode: AgentNode };
 let dropNodeCounter = 100;
@@ -30,6 +31,9 @@ function FlowEditor({ flowId }: { flowId: string }) {
   const [executionId, setExecutionId] = useState<string | null>(null);
   const [showLogs, setShowLogs] = useState(false);
   const [showTriggers, setShowTriggers] = useState(false);
+
+  // 🔴 live node status updates via WebSocket
+  useExecutionSocket(executionId);
 
   useEffect(() => {
     if (flowId === 'new') return;
@@ -143,7 +147,6 @@ function FlowEditor({ flowId }: { flowId: string }) {
 
         <NodeConfigPanel />
 
-        {/* Triggers panel — overlays above node config */}
         {showTriggers && flowId !== 'new' && (
           <TriggerPanel
             flowId={flowId}
@@ -152,7 +155,6 @@ function FlowEditor({ flowId }: { flowId: string }) {
           />
         )}
 
-        {/* Execution logs panel */}
         {showLogs && (
           <ExecutionLogsPanel
             executionId={executionId}

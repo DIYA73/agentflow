@@ -19,3 +19,6 @@ agentflow-phase3/
 agentflow-phase4/
 *.zip
 *.zip
+.codex/.tmp/plugins
+.codex/vendor_imports/skills
+.nvm
