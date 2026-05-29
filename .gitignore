@@ -22,3 +22,6 @@ agentflow-phase4/
 .codex/.tmp/plugins
 .codex/vendor_imports/skills
 .nvm
+.codex/.tmp/plugins
+.codex/vendor_imports/skills
+.nvm
