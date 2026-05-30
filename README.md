@@ -1,203 +1,92 @@
-#  agentflow
+# agentflow
 
-<div align="center">
+> Visual AI Agent Builder & Orchestration Platform
 
-**Visual AI Agent Builder & Orchestration Platform**
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
+[![NestJS](https://img.shields.io/badge/NestJS-10-red)](https://nestjs.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![NestJS](https://img.shields.io/badge/NestJS-10.x-E0234E?style=flat-square&logo=nestjs&logoColor=white)](https://nestjs.com/)
-[![Next.js](https://img.shields.io/badge/Next.js-14-000000?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org/)
-[![React Flow](https://img.shields.io/badge/React_Flow-11-FF0072?style=flat-square)](https://reactflow.dev/)
-[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-412991?style=flat-square&logo=openai&logoColor=white)](https://openai.com/)
-[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-
-[Live Demo](https://agentflow.vercel.app) · [API Docs](https://agentflow-api.onrender.com/api) · [Report Bug](https://github.com/DIYA73/agentflow/issues)
-
-</div>
+Build, chain, and deploy autonomous AI agents visually — no code required. Each node is a specialized agent; edges define how data flows between them.
 
 ---
 
-## 🖼️ Overview
+## what it does
 
-**agentflow** is an open-source platform to visually build, chain, and deploy autonomous AI agents. Design complex multi-agent pipelines on a drag-and-drop canvas — no code required. Each node is a specialized agent; edges define how data flows between them.
-
-> Build in minutes what used to take days of LangChain boilerplate.
+agentflow lets you design multi-agent pipelines on a drag-and-drop canvas. you connect nodes, hit run, and watch them execute in real time — nodes light up as they process, logs stream live, and results flow downstream automatically.
 
 ---
 
-## ✨ Features
+## features
 
-- 🎨 **Visual Canvas** — Drag-and-drop agent builder powered by React Flow
-- 🤖 **Built-in Agent Types** — Web scraper, code writer, API caller, email sender, data transformer, AI summarizer
-- ⚡ **Real-time Execution Logs** — Watch agents run live via WebSocket
-- 🔁 **Chaining & Branching** — Pass outputs between agents, conditional branches
-- ⏰ **Triggers** — Run flows on schedule (cron) or via webhook
-- 🏢 **Multi-tenant** — Full workspace isolation per team
-- 📜 **Version History** — Every flow version saved, one-click rollback
-- 🐳 **Self-hostable** — Docker Compose, deploy anywhere
-
----
-
-## 🏗️ Architecture
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                         agentflow                            │
-├────────────────────────┬─────────────────────────────────────┤
-│  apps/web (Next.js)    │        apps/api (NestJS)            │
-│                        │                                     │
-│  ┌──────────────────┐  │  ┌──────────┐  ┌────────────────┐  │
-│  │  React Flow      │  │  │ REST API │  │ WebSocket GW   │  │
-│  │  Canvas Editor   │◄─┼─►│          │  │ (exec logs)    │  │
-│  │  Node Palette    │  │  └────┬─────┘  └──────┬─────────┘  │
-│  │  Execution Logs  │  │       │                │            │
-│  └──────────────────┘  │  ┌────▼────────────────▼─────────┐ │
-│                        │  │         NestJS Modules         │ │
-│                        │  │  flows · agents · executions   │ │
-│                        │  │  nodes · triggers · gateway    │ │
-│                        │  └────┬──────────┬────────────────┘ │
-├────────────────────────┤       │          │                   │
-│    Infrastructure      │  ┌────▼──┐  ┌───▼──────┐           │
-│                        │  │  PG   │  │  Redis   │           │
-│  packages/shared       │  │  DB   │  │  BullMQ  │           │
-│  (types + utils)       │  └───────┘  └──────────┘           │
-└────────────────────────┴─────────────────────────────────────┘
-```
+- **visual canvas** — drag-and-drop builder powered by React Flow
+- **8 built-in agent types** — LLM, web scraper, API caller, code runner, email sender, data transformer, webhook output, condition branching
+- **live execution** — nodes light up yellow → green/red as they run via WebSocket
+- **real-time logs** — execution logs stream live to the UI
+- **BullMQ queue** — async job processing with Redis, retry logic, exponential backoff
+- **multi-tenant** — full workspace isolation per team
+- **flow versioning** — every save creates a new version, one-click rollback
+- **triggers** — run flows on cron schedule or via webhook
+- **self-hostable** — Docker Compose, deploy anywhere
 
 ---
 
-## 🛠️ Tech Stack
+## tech stack
 
-| Layer      | Technology                                               |
-|------------|----------------------------------------------------------|
-| Frontend   | Next.js 14, TypeScript, Tailwind CSS, React Flow, shadcn/ui |
-| Backend    | NestJS, TypeScript, WebSockets, BullMQ                   |
-| Database   | PostgreSQL + TypeORM                                     |
-| Queue      | Redis + BullMQ (async agent execution)                   |
-| AI         | OpenAI GPT-4o (agent reasoning & tool calls)             |
-| Auth       | JWT + Refresh Tokens                                     |
-| DevOps     | Docker, Docker Compose, GitHub Actions                   |
-| Deployment | Vercel (web) · Render (api) · Upstash (redis)            |
+| layer | technology |
+|-------|-----------|
+| frontend | Next.js 14, TypeScript, Tailwind CSS, React Flow, shadcn/ui |
+| backend | NestJS, TypeScript, WebSockets (Socket.io), BullMQ |
+| database | PostgreSQL + TypeORM |
+| queue | Redis + BullMQ |
+| ai | OpenAI GPT-4o |
+| auth | JWT + Refresh Tokens |
+| devops | Docker, Docker Compose, GitHub Actions |
 
 ---
 
-## 🚀 Quick Start
+## quick start
 
-### Prerequisites
-- Node.js 20+
-- Docker & Docker Compose
-- OpenAI API Key
-
-### 1. Clone the repo
 ```bash
 git clone https://github.com/DIYA73/agentflow.git
 cd agentflow
-```
-
-### 2. Configure environment
-```bash
 cp .env.example .env
-# Fill in your values
+# fill in your values
+
+docker compose up -d          # starts postgres + redis
+cd apps/api && npm run start:dev   # terminal 1
+cd apps/web && npm run dev         # terminal 2
 ```
 
-### 3. Start with Docker
-```bash
-docker compose up -d
-```
-
-### 4. Or run locally
-```bash
-npm install
-cd apps/api && npm run start:dev   # Terminal 1
-cd apps/web && npm run dev          # Terminal 2
-```
-
-Open [http://localhost:3000](http://localhost:3000) 🎉
+open http://localhost:3000
 
 ---
 
-## 📁 Project Structure
+## agent node types
 
-```
-agentflow/
-├── apps/
-│   ├── api/                     # NestJS backend
-│   │   └── src/
-│   │       ├── flows/           # Flow CRUD + versioning
-│   │       ├── agents/          # Agent type registry
-│   │       ├── executions/      # Run engine + BullMQ processor
-│   │       ├── nodes/           # Built-in node implementations
-│   │       ├── triggers/        # Cron + webhook trigger system
-│   │       ├── gateway/         # WebSocket execution log stream
-│   │       ├── auth/            # JWT authentication
-│   │       └── workspaces/      # Multi-tenant isolation
-│   └── web/                     # Next.js frontend
-│       └── src/
-│           ├── app/             # App Router pages
-│           ├── components/
-│           │   ├── canvas/      # React Flow canvas + toolbar
-│           │   ├── nodes/       # Custom node renderers
-│           │   └── ui/          # shadcn components
-│           └── lib/             # API client, hooks, WS client
-├── packages/
-│   └── shared/                  # Shared TypeScript types
-├── docs/                        # Architecture diagrams
-├── docker-compose.yml
-└── .github/workflows/           # CI/CD pipeline
-```
+| node | what it does |
+|------|-------------|
+| `ai-llm` | send prompt to GPT-4o, pass response downstream |
+| `web-scraper` | fetch & parse any URL, extract text |
+| `api-caller` | HTTP request to any endpoint |
+| `code-runner` | execute sandboxed JavaScript |
+| `email-sender` | send email via Resend |
+| `data-transform` | map, filter, or reshape JSON |
+| `webhook-output` | POST results to external URL |
+| `condition` | branch flow based on data condition |
 
 ---
 
-## 🤖 Built-in Agent Node Types
-
-| Node Type         | What It Does                                      |
-|-------------------|---------------------------------------------------|
-| `ai-llm`          | Send prompt to GPT-4o, pass response downstream   |
-| `web-scraper`     | Fetch & parse any URL, extract text/links         |
-| `api-caller`      | HTTP request to any endpoint (GET/POST/PUT/DELETE)|
-| `code-runner`     | Execute sandboxed JavaScript or Python snippet    |
-| `email-sender`    | Send email via Resend or SMTP                     |
-| `data-transform`  | Map, filter, or reshape JSON data                 |
-| `webhook-output`  | POST results to external URL                      |
-| `condition`       | Branch flow based on data condition (if/else)     |
-
+## architecture
 ---
 
-## 🔌 API Endpoints
-
-| Method | Endpoint                          | Description                      |
-|--------|-----------------------------------|----------------------------------|
-| POST   | `/auth/register`                  | Create workspace + account       |
-| POST   | `/auth/login`                     | JWT login                        |
-| GET    | `/flows`                          | List all flows in workspace      |
-| POST   | `/flows`                          | Create new flow                  |
-| PUT    | `/flows/:id`                      | Save flow (creates new version)  |
-| POST   | `/flows/:id/execute`              | Trigger flow execution           |
-| GET    | `/executions/:id/logs`            | Get execution logs               |
-| POST   | `/triggers/cron`                  | Schedule flow as cron job        |
-| POST   | `/triggers/webhook`               | Register flow as webhook         |
-| WS     | `/gateway`                        | Real-time execution log stream   |
-
----
-
-## ⚙️ Environment Variables
+## environment variables
 
 ```env
-# Database
 DATABASE_URL=postgresql://postgres:password@localhost:5432/agentflow
-
-# Redis
 REDIS_URL=redis://localhost:6379
-
-# Auth
-JWT_SECRET=your-super-secret
-JWT_EXPIRES_IN=15m
-
-# OpenAI
+JWT_SECRET=your-secret
 OPENAI_API_KEY=sk-...
-
-# App
 PORT=3001
 NODE_ENV=development
 WEB_URL=http://localhost:3000
@@ -205,37 +94,21 @@ WEB_URL=http://localhost:3000
 
 ---
 
-## 📈 Roadmap
+## roadmap
 
-- [x] Visual canvas with React Flow
-- [x] Built-in agent node types (8 types)
-- [x] Real-time execution logs via WebSocket
-- [x] Multi-tenant workspaces
-- [x] Flow versioning + rollback
-- [x] Cron & webhook triggers
-- [ ] Custom node SDK (bring your own agent)
-- [ ] Flow marketplace (share/import community flows)
-- [ ] Human-in-the-loop approval nodes
-- [ ] Python SDK for programmatic flow creation
-
----
-
-## 🤝 Contributing
-
-```bash
-git checkout -b feature/your-feature
-git commit -m 'feat: add your feature'
-git push origin feature/your-feature
-```
+- [x] visual canvas with React Flow
+- [x] 8 built-in agent node types
+- [x] real-time execution logs via WebSocket
+- [x] live node status (yellow → green/red)
+- [x] BullMQ async execution engine
+- [x] multi-tenant workspaces
+- [x] flow versioning + rollback
+- [x] cron & webhook triggers
+- [ ] custom node SDK
+- [ ] flow marketplace
+- [ ] human-in-the-loop approval nodes
+- [ ] Python SDK
 
 ---
 
-## 📄 License
-
-MIT © [DIYA73](https://github.com/DIYA73)
-
----
-
-<div align="center">
-  <sub>Built with ❤️ — SaaS & Microservices Engineer | Web to IoT systems 🔥</sub>
-</div>
+MIT © [DIYA73](https://github.com/DIYA73) — built with ❤️

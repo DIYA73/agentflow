@@ -50,6 +50,8 @@ export class ExecutionProcessor {
 
         try {
           const nodeInput = this.resolveNodeInput(node, edges, context);
+          // Small delay so frontend can see node light up yellow before completing
+          await new Promise((resolve) => setTimeout(resolve, 800));
           const output = await this.nodesService.execute(node, nodeInput, executionId);
           context[node.id] = output;
 
