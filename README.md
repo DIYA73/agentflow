@@ -1,92 +1,143 @@
-# agentflow
+<div align="center">
 
-> Visual AI Agent Builder & Orchestration Platform
+# ⚡ agentflow
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
-[![NestJS](https://img.shields.io/badge/NestJS-10-red)](https://nestjs.com/)
-[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+**Visual AI Agent Builder & Orchestration Platform**
 
-Build, chain, and deploy autonomous AI agents visually — no code required. Each node is a specialized agent; edges define how data flows between them.
+*Build multi-agent pipelines visually. Watch them execute in real time.*
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?style=flat-square&logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-14-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![React Flow](https://img.shields.io/badge/React_Flow-11-FF0072?style=flat-square)](https://reactflow.dev/)
+[![Redis](https://img.shields.io/badge/Redis-BullMQ-DC382D?style=flat-square&logo=redis&logoColor=white)](https://redis.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-TypeORM-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](https://opensource.org/licenses/MIT)
+
+[Live Demo](https://agentflow.vercel.app) · [API Docs](http://localhost:3001/api) · [Report Bug](https://github.com/DIYA73/agentflow/issues)
+
+![agentflow demo](https://raw.githubusercontent.com/DIYA73/agentflow/main/docs/demo.png)
+
+</div>
 
 ---
 
-## what it does
+## what is this?
 
-agentflow lets you design multi-agent pipelines on a drag-and-drop canvas. you connect nodes, hit run, and watch them execute in real time — nodes light up as they process, logs stream live, and results flow downstream automatically.
+agentflow is a self-hostable platform for building and running multi-agent AI pipelines visually. drag nodes onto a canvas, connect them, and hit run — each node executes in sequence, passes data downstream, and you watch everything happen live.
+
+no boilerplate. no LangChain spaghetti. just nodes and edges.
 
 ---
 
 ## features
-
-- **visual canvas** — drag-and-drop builder powered by React Flow
-- **8 built-in agent types** — LLM, web scraper, API caller, code runner, email sender, data transformer, webhook output, condition branching
-- **live execution** — nodes light up yellow → green/red as they run via WebSocket
-- **real-time logs** — execution logs stream live to the UI
-- **BullMQ queue** — async job processing with Redis, retry logic, exponential backoff
-- **multi-tenant** — full workspace isolation per team
-- **flow versioning** — every save creates a new version, one-click rollback
-- **triggers** — run flows on cron schedule or via webhook
-- **self-hostable** — Docker Compose, deploy anywhere
-
+🎨  Visual Canvas        drag-and-drop agent builder powered by React Flow
+🤖  8 Agent Types        LLM · scraper · API · code · email · transform · webhook · condition
+⚡  Live Execution       nodes light up yellow → green/red as they run
+📡  Real-time Logs       WebSocket streams every log line to the UI instantly
+🔁  BullMQ Queue         async processing, retry logic, exponential backoff
+⏰  Triggers             cron schedules + webhook endpoints
+🏢  Multi-tenant         full workspace isolation per team
+📜  Flow Versioning      every save is a version — one-click rollback
+🐳  Self-hostable        Docker Compose, runs anywhere
 ---
 
-## tech stack
+## stack
 
-| layer | technology |
-|-------|-----------|
-| frontend | Next.js 14, TypeScript, Tailwind CSS, React Flow, shadcn/ui |
-| backend | NestJS, TypeScript, WebSockets (Socket.io), BullMQ |
-| database | PostgreSQL + TypeORM |
-| queue | Redis + BullMQ |
+| layer | tech |
+|-------|------|
+| frontend | Next.js 14 · TypeScript · Tailwind CSS · React Flow · shadcn/ui |
+| backend | NestJS · TypeScript · Socket.io · BullMQ |
+| database | PostgreSQL · TypeORM |
+| queue | Redis · BullMQ |
 | ai | OpenAI GPT-4o |
-| auth | JWT + Refresh Tokens |
-| devops | Docker, Docker Compose, GitHub Actions |
+| auth | JWT · Refresh Tokens |
+| infra | Docker · GitHub Actions |
 
 ---
 
 ## quick start
 
 ```bash
+# clone
 git clone https://github.com/DIYA73/agentflow.git
 cd agentflow
-cp .env.example .env
-# fill in your values
 
-docker compose up -d          # starts postgres + redis
-cd apps/api && npm run start:dev   # terminal 1
-cd apps/web && npm run dev         # terminal 2
+# configure
+cp .env.example .env
+# edit .env with your values
+
+# start infrastructure
+docker compose up -d
+
+# run (two terminals)
+cd apps/api && npm run start:dev
+cd apps/web && npm run dev
 ```
 
-open http://localhost:3000
+→ open [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## agent node types
+## agent nodes
 
-| node | what it does |
+| node | description |
 |------|-------------|
-| `ai-llm` | send prompt to GPT-4o, pass response downstream |
-| `web-scraper` | fetch & parse any URL, extract text |
-| `api-caller` | HTTP request to any endpoint |
-| `code-runner` | execute sandboxed JavaScript |
-| `email-sender` | send email via Resend |
-| `data-transform` | map, filter, or reshape JSON |
-| `webhook-output` | POST results to external URL |
-| `condition` | branch flow based on data condition |
+| `ai-llm` | send prompt to GPT-4o, receive structured response |
+| `web-scraper` | fetch any URL, extract text and HTML |
+| `api-caller` | HTTP GET/POST/PUT/DELETE to any endpoint |
+| `code-runner` | execute sandboxed JavaScript snippets |
+| `email-sender` | send transactional email via Resend |
+| `data-transform` | pick, omit, merge, or map JSON data |
+| `webhook-output` | POST execution results to external URL |
+| `condition` | if/else branching based on data values |
 
 ---
 
-## architecture
+## how execution works
+User clicks Run
+│
+▼
+FlowsService.execute()
+│
+▼
+ExecutionsService.enqueue()  ──→  BullMQ Queue (Redis)
+│
+▼
+ExecutionProcessor.handleRunFlow()
+│
+├─ topological sort (Kahn's algorithm)
+├─ for each node:
+│    ├─ emit node:status → running  ──→  WebSocket → UI (yellow)
+│    ├─ NodesService.execute()
+│    └─ emit node:status → success  ──→  WebSocket → UI (green)
+│
+└─ emit execution:status → SUCCESS
+
 ---
 
 ## environment variables
 
 ```env
+# Database
 DATABASE_URL=postgresql://postgres:password@localhost:5432/agentflow
+
+# Redis
 REDIS_URL=redis://localhost:6379
-JWT_SECRET=your-secret
+
+# Auth
+JWT_SECRET=your-super-secret-key
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_SECRET=your-refresh-secret
+JWT_REFRESH_EXPIRES_IN=7d
+
+# OpenAI
 OPENAI_API_KEY=sk-...
+
+# Email (optional)
+RESEND_API_KEY=re_...
+
+# App
 PORT=3001
 NODE_ENV=development
 WEB_URL=http://localhost:3000
@@ -94,16 +145,40 @@ WEB_URL=http://localhost:3000
 
 ---
 
+## project structure
+agentflow/
+├── apps/
+│   ├── api/                    # NestJS backend
+│   │   └── src/
+│   │       ├── auth/           # JWT authentication
+│   │       ├── executions/     # BullMQ execution engine
+│   │       ├── flows/          # flow CRUD + versioning
+│   │       ├── gateway/        # WebSocket gateway
+│   │       ├── nodes/          # 8 built-in node executors
+│   │       ├── triggers/       # cron + webhook triggers
+│   │       └── workspaces/     # multi-tenant isolation
+│   └── web/                    # Next.js frontend
+│       └── src/
+│           ├── app/            # App Router pages
+│           ├── components/
+│           │   ├── canvas/     # React Flow canvas
+│           │   └── nodes/      # custom node renderers
+│           └── lib/
+│               └── hooks/      # useExecutionSocket
+└── packages/
+└── shared/                 # shared TypeScript types
+---
+
 ## roadmap
 
-- [x] visual canvas with React Flow
+- [x] visual drag-and-drop canvas
 - [x] 8 built-in agent node types
-- [x] real-time execution logs via WebSocket
+- [x] real-time execution via WebSocket
 - [x] live node status (yellow → green/red)
-- [x] BullMQ async execution engine
+- [x] BullMQ async queue with retry
 - [x] multi-tenant workspaces
 - [x] flow versioning + rollback
-- [x] cron & webhook triggers
+- [x] cron + webhook triggers
 - [ ] custom node SDK
 - [ ] flow marketplace
 - [ ] human-in-the-loop approval nodes
@@ -111,4 +186,10 @@ WEB_URL=http://localhost:3000
 
 ---
 
-MIT © [DIYA73](https://github.com/DIYA73) — built with ❤️
+<div align="center">
+
+MIT © [DIYA73](https://github.com/DIYA73) · built with ❤️
+
+*SaaS & Microservices Engineer · Web to IoT systems*
+
+</div>
