@@ -31,6 +31,9 @@ export class ExecutionProcessor {
     await this.executionsService.setStatus(executionId, ExecutionStatus.RUNNING);
     await this.executionsService.appendLog(executionId, 'system', '▶ Starting flow execution');
 
+    // Give WebSocket client time to connect and join the room
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     try {
       const sorted = this.topologicalSort(nodes, edges);
       const context: Record<string, unknown> = { input: input || {} };

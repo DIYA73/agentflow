@@ -33,7 +33,9 @@ function FlowEditor({ flowId }: { flowId: string }) {
   const [showTriggers, setShowTriggers] = useState(false);
 
   // 🔴 live node status updates via WebSocket
-  useExecutionSocket(executionId);
+  useExecutionSocket(executionId, () => {
+    setIsRunning(false);
+  });
 
   useEffect(() => {
     if (flowId === 'new') return;
@@ -82,16 +84,15 @@ function FlowEditor({ flowId }: { flowId: string }) {
   };
 
   const handleRun = async () => {
+    if (flowId === 'new') { alert('Save the flow first!'); return; }
     setIsRunning(true);
     setShowLogs(true);
     setShowTriggers(false);
     try {
-      if (flowId === 'new') { alert('Save the flow first!'); return; }
       const execution = await flowsApi.execute(flowId);
       setExecutionId(execution.id);
     } catch (err) {
       console.error('Run failed:', err);
-    } finally {
       setIsRunning(false);
     }
   };

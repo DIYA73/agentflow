@@ -20,29 +20,31 @@ export class NodesService {
     input: Record<string, unknown>,
     executionId: string,
   ): Promise<unknown> {
-    switch (node.type) {
-      case 'ai-llm':       return this.runAiLlm(node, input);
-      case 'web-scraper':  return this.runWebScraper(node, input);
-      case 'api-caller':   return this.runApiCaller(node, input);
-      case 'code-runner':  return this.runCodeRunner(node, input);
-      case 'email-sender': return this.runEmailSender(node, input);
+    const nodeType = ((node.data as Record<string, unknown>)?.type as string) || node.type;
+    switch (nodeType) {
+      case 'ai-llm':         return this.runAiLlm(node, input);
+      case 'web-scraper':    return this.runWebScraper(node, input);
+      case 'api-caller':     return this.runApiCaller(node, input);
+      case 'code-runner':    return this.runCodeRunner(node, input);
+      case 'email-sender':   return this.runEmailSender(node, input);
       case 'data-transform': return this.runDataTransform(node, input);
       case 'webhook-output': return this.runWebhookOutput(node, input);
-      case 'condition':    return this.runCondition(node, input);
+      case 'condition':      return this.runCondition(node, input);
       default:
-        throw new BadRequestException(`Unknown node type: ${node.type}`);
+        throw new BadRequestException(`Unknown node type: ${nodeType}`);
     }
   }
 
   // ─── AI LLM Node ──────────────────────────────────────────
   private async runAiLlm(node: FlowNode, input: Record<string, unknown>): Promise<unknown> {
-    const { prompt, model = 'gpt-4o', systemPrompt } = node.data.config as {
+    const { prompt, model = 'gpt-4o', systemPrompt } = (node.data.config || {}) as {
       prompt: string;
       model?: string;
       systemPrompt?: string;
     };
 
-    // Allow prompt to reference upstream data with {{key}} syntax
+    if (!prompt) return { text: '[no prompt configured]', usage: null };
+
     const resolvedPrompt = this.interpolate(prompt, input);
 
     const messages: OpenAI.ChatCompletionMessageParam[] = [];
@@ -81,12 +83,14 @@ export class NodesService {
 
   // ─── API Caller Node ──────────────────────────────────────
   private async runApiCaller(node: FlowNode, input: Record<string, unknown>): Promise<unknown> {
-    const { url, method = 'GET', headers = {}, body } = node.data.config as {
+    const { url, method = 'GET', headers = {}, body } = (node.data.config || {}) as {
       url: string;
       method?: string;
       headers?: Record<string, string>;
       body?: string;
     };
+
+    if (!url) return { statusCode: 0, data: '[no url configured]', headers: {} };
 
     const resolvedUrl = this.interpolate(url, input);
     const resolvedBody = body ? this.interpolate(body, input) : undefined;

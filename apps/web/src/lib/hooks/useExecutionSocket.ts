@@ -6,7 +6,10 @@ let socket: Socket | null = null;
 
 export type NodeExecutionStatus = 'idle' | 'running' | 'success' | 'error';
 
-export function useExecutionSocket(executionId: string | null) {
+export function useExecutionSocket(
+  executionId: string | null,
+  onConnected?: () => void,
+) {
   const { setNodes } = useReactFlow();
 
   const updateNodeStatus = useCallback(
@@ -31,6 +34,7 @@ export function useExecutionSocket(executionId: string | null) {
 
     socket.on('connect', () => {
       socket?.emit('join:execution', { executionId });
+      onConnected?.();
     });
 
     socket.on('execution:node:status', (payload: {
@@ -51,5 +55,5 @@ export function useExecutionSocket(executionId: string | null) {
       socket?.disconnect();
       socket = null;
     };
-  }, [executionId, updateNodeStatus]);
+  }, [executionId, updateNodeStatus, onConnected]);
 }

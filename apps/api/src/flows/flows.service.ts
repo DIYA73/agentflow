@@ -1,15 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Flow, FlowStatus, FlowGraph } from './entities/flow.entity';
+import { Flow, FlowStatus } from './entities/flow.entity';
 import { CreateFlowDto } from './dto/create-flow.dto';
 import { UpdateFlowDto } from './dto/update-flow.dto';
+import { ExecutionsService } from '../executions/executions.service';
 
 @Injectable()
 export class FlowsService {
   constructor(
     @InjectRepository(Flow)
     private readonly flowRepo: Repository<Flow>,
+    private readonly executionsService: ExecutionsService,
   ) {}
 
   async create(workspaceId: string, dto: CreateFlowDto): Promise<Flow> {
@@ -55,9 +57,9 @@ export class FlowsService {
   }
 
   async execute(id: string, workspaceId: string): Promise<{ id: string; status: string }> {
-    await this.findOne(id, workspaceId);
-    // Execution engine will be wired in next phase
-    return { id: `exec_${Date.now()}`, status: 'queued' };
+    const flow = await this.findOne(id, workspaceId);
+    const execution = await this.executionsService.enqueue(flow);
+    return { id: execution.id, status: execution.status };
   }
 
   async remove(id: string, workspaceId: string): Promise<void> {
