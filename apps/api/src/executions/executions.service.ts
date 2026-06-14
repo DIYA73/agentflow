@@ -30,7 +30,7 @@ export class ExecutionsService {
     private readonly executionQueue: Queue,
     @InjectRepository(Execution)
     private readonly executionRepo: Repository<Execution>,
-    private readonly eventEmitter: EventEmitter2,
+    readonly eventEmitter: EventEmitter2,
   ) {}
 
   async enqueue(flow: Flow, input?: Record<string, unknown>): Promise<Execution> {
@@ -84,3 +84,4 @@ export class ExecutionsService {
     return this.executionRepo.findOne({ where: { id } });
   }
 }
+
