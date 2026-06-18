@@ -107,4 +107,4 @@ Open http://localhost:3000
 
 ---
 
-MIT - DIYA73 🤖
+MIT - DIYA73 🤖.
