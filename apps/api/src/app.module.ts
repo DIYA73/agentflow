@@ -13,6 +13,7 @@ import { FlowsModule } from './flows/flows.module';
 import { TriggersModule } from './triggers/triggers.module';
 import { ExecutionsModule } from './executions/executions.module';
 import { GatewayModule } from './gateway/gateway.module';
+import { TemplatesModule } from './templates/templates.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { GatewayModule } from './gateway/gateway.module';
     TriggersModule,
     ExecutionsModule,
     GatewayModule,
+    TemplatesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
