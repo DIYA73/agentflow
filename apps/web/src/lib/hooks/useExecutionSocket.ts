@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useReactFlow } from '@xyflow/react';
+import type { ExecutionStatus } from '@agentflow/shared';
 
 let socket: Socket | null = null;
 
@@ -8,7 +9,7 @@ export type NodeExecutionStatus = 'idle' | 'running' | 'success' | 'error';
 
 export function useExecutionSocket(
   executionId: string | null,
-  onConnected?: () => void,
+  onComplete?: () => void,
 ) {
   const { setNodes } = useReactFlow();
 
@@ -28,13 +29,17 @@ export function useExecutionSocket(
   useEffect(() => {
     if (!executionId) return;
 
-    socket = io(process.env.NEXT_PUBLIC_API_URL + '/gateway', {
+    const token =
+      typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+    socket = io(`${baseUrl}/gateway`, {
       transports: ['websocket'],
+      auth: { token },
     });
 
     socket.on('connect', () => {
       socket?.emit('join:execution', { executionId });
-      onConnected?.();
     });
 
     socket.on('execution:node:status', (payload: {
@@ -44,8 +49,9 @@ export function useExecutionSocket(
       updateNodeStatus(payload.nodeId, payload.status);
     });
 
-    socket.on('execution:status', (payload: { status: string }) => {
-      if (payload.status === 'SUCCESS' || payload.status === 'FAILED') {
+    socket.on('execution:status', (payload: { status: ExecutionStatus }) => {
+      if (payload.status === 'success' || payload.status === 'failed') {
+        onComplete?.();
         socket?.disconnect();
         socket = null;
       }
@@ -55,5 +61,5 @@ export function useExecutionSocket(
       socket?.disconnect();
       socket = null;
     };
-  }, [executionId, updateNodeStatus, onConnected]);
+  }, [executionId, updateNodeStatus, onComplete]);
 }

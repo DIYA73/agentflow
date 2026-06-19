@@ -33,4 +33,6 @@ export const flowsApi = {
   execute: (id: string) =>
     api.post(`/flows/${id}/execute`).then((r) => r.data),
   remove: (id: string) => api.delete(`/flows/${id}`).then((r) => r.data),
+  rollback: (id: string, version: number) =>
+    api.post(`/flows/${id}/rollback`, { version }).then((r) => r.data),
 };

@@ -27,6 +27,11 @@ export class Execution {
   @Column({ type: 'jsonb', nullable: true })
   output: unknown;
 
+  // Per-node outputs, persisted as each node completes. Lets a retried job
+  // resume from the last incomplete node instead of re-running side effects.
+  @Column({ type: 'jsonb', default: {} })
+  nodeOutputs: Record<string, unknown>;
+
   @Column({ type: 'jsonb', default: [] })
   logs: unknown[];
 

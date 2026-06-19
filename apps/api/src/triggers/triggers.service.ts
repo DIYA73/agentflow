@@ -54,6 +54,22 @@ export class TriggersService {
     return this.triggerRepo.find({ where: { workspaceId } });
   }
 
+  async findByWebhookPath(path: string): Promise<Trigger | null> {
+    // Query the JSONB config directly instead of loading every active webhook
+    // trigger and filtering in memory.
+    return this.triggerRepo
+      .createQueryBuilder('trigger')
+      .where('trigger.type = :type', { type: TriggerType.WEBHOOK })
+      .andWhere('trigger.isActive = :active', { active: true })
+      .andWhere("trigger.config ->> 'webhookPath' = :path", { path })
+      .getOne();
+  }
+
+  async fireWebhook(trigger: Trigger, payload: Record<string, unknown>) {
+    const result = await this.flowsService.execute(trigger.flowId, trigger.workspaceId);
+    return { executionId: result.id, status: result.status, payload };
+  }
+
   async remove(id: string, workspaceId: string): Promise<void> {
     const trigger = await this.triggerRepo.findOne({ where: { id, workspaceId } });
     if (!trigger) throw new NotFoundException(`Trigger ${id} not found`);

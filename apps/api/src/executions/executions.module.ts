@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bull';
+import { BullModule } from '@nestjs/bullmq';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ExecutionsService, EXECUTION_QUEUE } from './executions.service';
 import { ExecutionsController } from './executions.controller';

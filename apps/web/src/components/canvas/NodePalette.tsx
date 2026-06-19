@@ -1,5 +1,5 @@
 'use client';
-import { NODE_REGISTRY } from '@/lib/node-registry';
+import { NODE_REGISTRY } from '@agentflow/shared';
 import { useCanvasStore } from '@/store/canvas.store';
 import { useCallback } from 'react';
 

@@ -7,9 +7,10 @@
   "license": "MIT",
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
-    "dev": "concurrently \"npm run start:dev --workspace=apps/api\" \"npm run dev --workspace=apps/web\"",
-    "build": "npm run build --workspace=packages/shared && npm run build --workspace=apps/api && npm run build --workspace=apps/web",
-    "test": "npm run test --workspaces --if-present",
+    "build:shared": "npm run build --workspace=@agentflow/shared",
+    "dev": "npm run build:shared && concurrently \"npm run start:dev --workspace=@agentflow/api\" \"npm run dev --workspace=@agentflow/web\"",
+    "build": "npm run build:shared && npm run build --workspace=@agentflow/api && npm run build --workspace=@agentflow/web",
+    "test": "npm run test --workspace=@agentflow/shared && npm run test --workspace=@agentflow/api --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"
