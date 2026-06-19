@@ -1,8 +1,12 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as vm from 'node:vm';
+import * as cheerio from 'cheerio';
 import OpenAI from 'openai';
 import { Resend } from 'resend';
 import { FlowNode } from '../flows/entities/flow.entity';
+
+const CODE_TIMEOUT_MS = 5000;
 
 @Injectable()
 export class NodesService {
@@ -74,9 +78,10 @@ export class NodesService {
 
     if (!response.ok) throw new Error(`Scrape failed: HTTP ${response.status}`);
     const html = await response.text();
-
-    // Basic text extraction (production: use cheerio or playwright)
-    const textContent = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    const $ = cheerio.load(html);
+    const textContent = selector
+      ? $(selector).text().replace(/\s+/g, ' ').trim()
+      : $('body').text().replace(/\s+/g, ' ').trim();
 
     return { url: resolvedUrl, html, textContent, statusCode: response.status };
   }
@@ -115,13 +120,23 @@ export class NodesService {
   // ─── Code Runner Node ─────────────────────────────────────
   private async runCodeRunner(node: FlowNode, input: Record<string, unknown>): Promise<unknown> {
     const { code } = node.data.config as { code: string };
+    if (!code?.trim()) return { output: null };
 
-    // Sandboxed JS execution using Function constructor
-    // Production: use vm2 or isolated-vm for proper sandboxing
+    // NOTE: node:vm is NOT a security boundary. It isolates the global scope and
+    // enforces a wall-clock timeout, but a determined script can still escape the
+    // context (e.g. via constructor/prototype reaches) and access the host. This
+    // is "sandboxed-ish with a timeout" — acceptable for flows authored by
+    // trusted workspace members, NOT for running untrusted user code. For that,
+    // run in a real isolate (isolated-vm) or an out-of-process worker/container.
+    const sandbox: Record<string, unknown> = { input, output: undefined };
+    vm.createContext(sandbox);
+    const wrapped = `(function() { "use strict";\n${code}\n})()`;
     try {
-      const fn = new Function('input', `"use strict";\n${code}`);
-      const result = fn(input);
-      return { output: result };
+      const result = vm.runInContext(wrapped, sandbox, {
+        timeout: CODE_TIMEOUT_MS,
+        displayErrors: true,
+      });
+      return { output: result !== undefined ? result : sandbox.output };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Script error';
       throw new Error(`Code execution failed: ${msg}`);

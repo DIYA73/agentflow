@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { FlowsService } from './flows.service';
 import { CreateFlowDto } from './dto/create-flow.dto';
@@ -36,6 +36,18 @@ export class FlowsController {
   @Post(':id/execute')
   execute(@Param('id') id: string, @CurrentWorkspaceId() workspaceId: string) {
     return this.flowsService.execute(id, workspaceId);
+  }
+
+  @Post(':id/rollback')
+  rollback(
+    @Param('id') id: string,
+    @CurrentWorkspaceId() workspaceId: string,
+    @Body() body: { version: number },
+  ) {
+    if (body?.version == null) {
+      throw new BadRequestException('version is required');
+    }
+    return this.flowsService.rollback(id, workspaceId, body.version);
   }
 
   @Delete(':id')

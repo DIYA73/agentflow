@@ -15,7 +15,7 @@ import { NodeConfigPanel } from '@/components/canvas/NodeConfigPanel';
 import { CanvasToolbar } from '@/components/canvas/CanvasToolbar';
 import { ExecutionLogsPanel } from '@/components/canvas/ExecutionLogsPanel';
 import { TriggerPanel } from '@/components/triggers/TriggerPanel';
-import { NODE_REGISTRY } from '@/lib/node-registry';
+import { NODE_REGISTRY, type FlowVersionEntry } from '@agentflow/shared';
 import { useExecutionSocket } from '@/lib/hooks/useExecutionSocket';
 
 const nodeTypes = { agentNode: AgentNode };
@@ -26,6 +26,9 @@ function FlowEditor({ flowId }: { flowId: string }) {
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, loadGraph, isDirty, markClean } = useCanvasStore();
 
   const [flowName, setFlowName] = useState('Untitled Flow');
+  const [version, setVersion] = useState(1);
+  const [versionHistory, setVersionHistory] = useState<FlowVersionEntry[]>([]);
+  const [isRollingBack, setIsRollingBack] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [executionId, setExecutionId] = useState<string | null>(null);
@@ -41,6 +44,8 @@ function FlowEditor({ flowId }: { flowId: string }) {
     if (flowId === 'new') return;
     flowsApi.get(flowId).then((flow) => {
       setFlowName(flow.name);
+      setVersion(flow.version ?? 1);
+      setVersionHistory(flow.versionHistory || []);
       loadGraph(flow.graph?.nodes || [], flow.graph?.edges || []);
     }).catch(console.error);
   }, [flowId, loadGraph]);
@@ -73,13 +78,31 @@ function FlowEditor({ flowId }: { flowId: string }) {
         await flowsApi.update(created.id, { graph });
         window.history.replaceState(null, '', `/flows/${created.id}`);
       } else {
-        await flowsApi.update(flowId, { graph });
+        const updated = await flowsApi.update(flowId, { graph });
+        setVersion(updated.version ?? version + 1);
+        setVersionHistory(updated.versionHistory || []);
       }
       markClean();
     } catch (err) {
       console.error('Save failed:', err);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleRollback = async (targetVersion: number) => {
+    if (flowId === 'new') return;
+    setIsRollingBack(true);
+    try {
+      const updated = await flowsApi.rollback(flowId, targetVersion);
+      setVersion(updated.version);
+      setVersionHistory(updated.versionHistory || []);
+      loadGraph(updated.graph?.nodes || [], updated.graph?.edges || []);
+      markClean();
+    } catch (err) {
+      console.error('Rollback failed:', err);
+    } finally {
+      setIsRollingBack(false);
     }
   };
 
@@ -101,12 +124,16 @@ function FlowEditor({ flowId }: { flowId: string }) {
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-bg">
       <CanvasToolbar
         flowName={flowName}
+        version={version}
+        versionHistory={versionHistory}
         isSaving={isSaving}
         isDirty={isDirty}
         isRunning={isRunning}
+        isRollingBack={isRollingBack}
         showTriggers={showTriggers}
         onSave={handleSave}
         onRun={handleRun}
+        onRollback={handleRollback}
         onToggleTriggers={() => { setShowTriggers(!showTriggers); setShowLogs(false); }}
       />
 

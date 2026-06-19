@@ -1,6 +1,6 @@
 'use client';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { getNodeMeta } from '@/lib/node-registry';
+import { getNodeMeta } from '@agentflow/shared';
 import { useCanvasStore } from '@/store/canvas.store';
 import { NodeExecutionStatus } from '@/lib/nodeExecutionStyles';
 
@@ -82,15 +82,14 @@ export function AgentNode({ id, data, selected }: NodeProps) {
       </div>
 
       {/* Output handle */}
-      <Handle
-        type="source"
-        position={Position.Right}
-        style={{ borderColor: meta.borderColor }}
-      />
-
-      {/* Condition node has two output handles */}
-      {data.type === 'condition' && (
+      {data.type === 'condition' ? (
         <>
+          <Handle
+            type="source"
+            position={Position.Right}
+            id="true"
+            style={{ borderColor: meta.borderColor }}
+          />
           <Handle
             type="source"
             position={Position.Bottom}
@@ -100,6 +99,12 @@ export function AgentNode({ id, data, selected }: NodeProps) {
           <div className="absolute -bottom-5 right-6 text-xs text-text-dim">false</div>
           <div className="absolute -right-8 top-1/2 -translate-y-1/2 text-xs text-text-dim">true</div>
         </>
+      ) : (
+        <Handle
+          type="source"
+          position={Position.Right}
+          style={{ borderColor: meta.borderColor }}
+        />
       )}
     </div>
   );

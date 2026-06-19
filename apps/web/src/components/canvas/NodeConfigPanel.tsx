@@ -1,6 +1,6 @@
 'use client';
 import { useCanvasStore } from '@/store/canvas.store';
-import { getNodeMeta } from '@/lib/node-registry';
+import { getNodeMeta } from '@agentflow/shared';
 import { X } from 'lucide-react';
 
 export function NodeConfigPanel() {

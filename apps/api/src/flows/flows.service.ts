@@ -62,6 +62,27 @@ export class FlowsService {
     return { id: execution.id, status: execution.status };
   }
 
+  async rollback(id: string, workspaceId: string, targetVersion: number): Promise<Flow> {
+    const flow = await this.findOne(id, workspaceId);
+    const entry = (flow.versionHistory || []).find((h) => h.version === targetVersion);
+    if (!entry) {
+      throw new NotFoundException(`Version ${targetVersion} not found in history`);
+    }
+
+    const history = flow.versionHistory || [];
+    history.push({
+      version: flow.version,
+      graph: flow.graph,
+      savedAt: new Date().toISOString(),
+    });
+    if (history.length > 10) history.shift();
+
+    flow.versionHistory = history;
+    flow.graph = entry.graph;
+    flow.version = flow.version + 1;
+    return this.flowRepo.save(flow);
+  }
+
   async remove(id: string, workspaceId: string): Promise<void> {
     const flow = await this.findOne(id, workspaceId);
     await this.flowRepo.remove(flow);
