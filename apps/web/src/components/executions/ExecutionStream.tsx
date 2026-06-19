@@ -1,7 +1,7 @@
 'use client';
 
 import { useExecutionStream } from '@/hooks/useExecutionStream';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthStore } from '@/store/auth.store';
 
 interface Props {
   executionId: string;
@@ -22,7 +22,7 @@ const statusColor: Record<string, string> = {
 };
 
 export function ExecutionStream({ executionId }: Props) {
-  const { token } = useAuth();
+  const token = useAuthStore((s) => s.accessToken);
   const { logs, status, done, connected } = useExecutionStream({
     executionId,
     token,

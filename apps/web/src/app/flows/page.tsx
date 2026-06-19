@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Play, Pencil, Trash2, Zap, Clock } from 'lucide-react';
+import { Plus, Play, Pencil, Trash2, Zap, Clock, Sparkles } from 'lucide-react';
 import { flowsApi } from '@/lib/api';
 
 interface Flow {
@@ -58,13 +58,22 @@ export default function FlowsPage() {
           <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center text-sm">⚡</div>
           <span className="font-semibold text-lg">agentflow</span>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-dim rounded-lg text-sm font-semibold text-white transition-colors"
-        >
-          <Plus size={15} />
-          New Flow
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => router.push('/templates')}
+            className="flex items-center gap-2 px-4 py-2 border border-border hover:border-accent rounded-lg text-sm font-semibold text-text-dim hover:text-text transition-colors"
+          >
+            <Sparkles size={15} />
+            Templates
+          </button>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-dim rounded-lg text-sm font-semibold text-white transition-colors"
+          >
+            <Plus size={15} />
+            New Flow
+          </button>
+        </div>
       </header>
 
       {/* Content */}

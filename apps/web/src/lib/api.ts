@@ -34,3 +34,11 @@ export const flowsApi = {
     api.post(`/flows/${id}/execute`).then((r) => r.data),
   remove: (id: string) => api.delete(`/flows/${id}`).then((r) => r.data),
 };
+
+// Templates calls
+export const templatesApi = {
+  list: (category?: string) =>
+    api.get('/templates', { params: category ? { category } : {} }).then((r) => r.data),
+  get: (id: string) => api.get(`/templates/${id}`).then((r) => r.data),
+  use: (id: string) => api.post(`/templates/${id}/use`).then((r) => r.data),
+};
